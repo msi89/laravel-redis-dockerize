@@ -1,0 +1,106 @@
+version: "3.3"
+
+services:
+  nginx:
+    build:
+      context: .
+      dockerfile: .docker/nginx/Dockerfile
+    volumes:
+      - ./:/var/www/laravel
+    ports:
+      - "3003:80"
+    links:
+      - fpm
+    depends_on:
+      - postgresql
+    networks:
+      - laravel-network
+  fpm:
+    build:
+      context: .
+      dockerfile: .docker/php/Dockerfile
+    volumes:
+      - ./:/var/www/laravel
+    links:
+      - postgresql
+    networks:
+      - laravel-network
+
+  postgresql:
+    image: postgres:12
+    restart: unless-stopped
+    tty: true
+    environment:
+      POSTGRES_DB: testdb
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+    ports:
+      - 54321:5432
+    volumes:
+      - db-data:/var/lib/postgresql/data/
+    networks:
+      - laravel-network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: test@test.com
+      PGADMIN_DEFAULT_PASSWORD: test
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin/data
+    ports:
+      - 2003:80
+    networks:
+      - laravel-network
+
+  redis:
+    image: redis:5.0.5
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/var/lib/redis/data
+    networks:
+      - laravel-network
+
+  composer:
+    build:
+      context: .
+      dockerfile: .docker/composer/Dockerfile
+    volumes:
+      - ./:/var/www/laravel
+    working_dir: /var/www/laravel
+    depends_on:
+      - fpm
+    entrypoint: ["composer"]
+    networks:
+      - laravel-network
+
+  npm:
+    image: node:13.7
+    volumes:
+      - ./:/var/www/laravel
+    working_dir: /var/www/laravel
+    entrypoint: ["npm"]
+    networks:
+      - laravel-network
+
+  artisan:
+    build:
+      context: .
+      dockerfile: .docker/php/Dockerfile
+    volumes:
+      - ./:/var/www/laravel:delegated
+    depends_on:
+      - postgresql
+    working_dir: /var/www/laravel
+    entrypoint: ["php", "/var/www/laravel/artisan"]
+    networks:
+      - laravel-network
+
+networks:
+  laravel-network:
+    driver: bridge
+volumes:
+  db-data:
+  redis-data:
+  pgadmin-data:
