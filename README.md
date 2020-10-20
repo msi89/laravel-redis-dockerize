@@ -7,7 +7,7 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
-## About Laravel
+## If you are a probleme
 
-sudo chgrp -R www-data storage bootstrap/cache
-sudo chmod -R ug+rwx storage bootstrap/cache
+- sudo chgrp -R www-data storage bootstrap/cache
+- sudo chmod -R ug+rwx storage bootstrap/cache
