@@ -1,4 +1,4 @@
-version: "3.3"
+version: "3.7"
 
 services:
   nginx:
@@ -54,11 +54,14 @@ services:
       - laravel-network
 
   redis:
-    image: redis:5.0.5
+    build:
+      context: .
+      dockerfile: .docker/redis/Dockerfile
     ports:
       - "6379:6379"
     volumes:
       - redis-data:/var/lib/redis/data
+    restart: unless-stopped
     networks:
       - laravel-network
 
@@ -100,6 +103,7 @@ services:
 networks:
   laravel-network:
     driver: bridge
+
 volumes:
   db-data:
   redis-data:
